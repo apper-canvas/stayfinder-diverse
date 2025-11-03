@@ -6,16 +6,19 @@ import { cn } from "@/utils/cn";
 const GuestSelector = ({ adults, children, onAdultsChange, onChildrenChange, error }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  const totalGuests = adults + children;
+  // Ensure values are numbers to prevent object rendering
+  const adultsCount = typeof adults === 'number' ? adults : parseInt(adults) || 1;
+  const childrenCount = typeof children === 'number' ? children : parseInt(children) || 0;
+  
+  const totalGuests = adultsCount + childrenCount;
   const guestText = totalGuests === 1 ? "1 guest" : `${totalGuests} guests`;
-
-  const adjustCount = (type, increment) => {
+const adjustCount = (type, increment) => {
     if (type === "adults") {
-      const newValue = Math.max(1, adults + increment);
-      onAdultsChange(newValue);
+      const newValue = Math.max(1, adultsCount + increment);
+      onAdultsChange && onAdultsChange(newValue);
     } else {
-      const newValue = Math.max(0, Math.min(6, children + increment));
-      onChildrenChange(newValue);
+      const newValue = Math.max(0, Math.min(6, childrenCount + increment));
+      onChildrenChange && onChildrenChange(newValue);
     }
   };
 
@@ -60,19 +63,19 @@ const GuestSelector = ({ adults, children, onAdultsChange, onChildrenChange, err
                 <div className="text-sm text-gray-500">Ages 18+</div>
               </div>
               <div className="flex items-center gap-3">
-                <button
+<button
                   type="button"
                   onClick={() => adjustCount("adults", -1)}
-                  disabled={adults <= 1}
+                  disabled={adultsCount <= 1}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
                   <ApperIcon name="Minus" className="w-4 h-4" />
                 </button>
-                <span className="w-8 text-center font-medium">{adults}</span>
+                <span className="w-8 text-center font-medium">{String(adultsCount)}</span>
                 <button
-                  type="button"
+type="button"
                   onClick={() => adjustCount("adults", 1)}
-                  disabled={adults >= 8}
+                  disabled={adultsCount >= 8}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
                   <ApperIcon name="Plus" className="w-4 h-4" />
@@ -89,19 +92,19 @@ const GuestSelector = ({ adults, children, onAdultsChange, onChildrenChange, err
                 <div className="text-sm text-gray-500">Ages 0-17</div>
               </div>
               <div className="flex items-center gap-3">
-                <button
+<button
                   type="button"
                   onClick={() => adjustCount("children", -1)}
-                  disabled={children <= 0}
+                  disabled={childrenCount <= 0}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
                   <ApperIcon name="Minus" className="w-4 h-4" />
                 </button>
-                <span className="w-8 text-center font-medium">{children}</span>
+                <span className="w-8 text-center font-medium">{String(childrenCount)}</span>
                 <button
-                  type="button"
+type="button"
                   onClick={() => adjustCount("children", 1)}
-                  disabled={children >= 6}
+                  disabled={childrenCount >= 6}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
                   <ApperIcon name="Plus" className="w-4 h-4" />
