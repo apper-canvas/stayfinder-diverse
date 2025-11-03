@@ -5,18 +5,19 @@ import Home from "@/components/pages/Home";
 import Destinations from "@/components/pages/Destinations";
 import Deals from "@/components/pages/Deals";
 import Help from "@/components/pages/Help";
-
+import HotelDetails from "@/components/pages/HotelDetails";
 function App() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <main>
-        <Routes>
+<Routes>
           <Route path="/" element={<Home />} />
           <Route path="/destinations" element={<Destinations />} />
           <Route path="/deals" element={<Deals />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/hotel/:id" element={<HotelDetails />} />
         </Routes>
       </main>
 

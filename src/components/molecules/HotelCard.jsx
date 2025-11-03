@@ -87,12 +87,12 @@ const HotelCard = ({ hotel, onViewDetails }) => {
             </div>
           </div>
           
-          <Button
+<Button
             variant="outline"
             size="sm"
             onClick={(e) => {
               e.stopPropagation();
-              onViewDetails(hotel);
+              window.location.href = `/hotel/${hotel.Id}`;
             }}
             className="shrink-0"
           >

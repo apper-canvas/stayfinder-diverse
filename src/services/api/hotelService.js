@@ -8,13 +8,72 @@ class HotelService {
     return [...hotelsData];
   }
 
-  async getById(id) {
+async getById(id) {
     await delay(200);
     const hotel = hotelsData.find(h => h.Id === parseInt(id));
     if (!hotel) {
       throw new Error("Hotel not found");
     }
-    return { ...hotel };
+    
+    // Enhanced hotel data with additional details for the details page
+    const enhancedHotel = {
+      ...hotel,
+      images: [
+        hotel.imageUrl,
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+      ],
+      amenities: [
+        "Free WiFi", "Swimming Pool", "Fitness Center", "Spa & Wellness", 
+        "Restaurant", "Bar", "Room Service", "Valet Parking", 
+        "Air Conditioning", "Laundry Service", "Business Center", "Pet Friendly"
+      ],
+      roomTypes: [
+        {
+          name: "Standard Room",
+          description: "Comfortable room with modern amenities and city views",
+          pricePerNight: hotel.pricePerNight,
+          features: ["Queen Bed", "City View", "Free WiFi", "Air Conditioning"]
+        },
+        {
+          name: "Deluxe Room", 
+          description: "Spacious room with premium furnishing and enhanced amenities",
+          pricePerNight: Math.floor(hotel.pricePerNight * 1.3),
+          features: ["King Bed", "Ocean View", "Balcony", "Mini Bar", "Bathrobes"]
+        },
+        {
+          name: "Suite",
+          description: "Luxury suite with separate living area and premium services", 
+          pricePerNight: Math.floor(hotel.pricePerNight * 1.8),
+          features: ["King Bed", "Living Room", "Premium View", "Butler Service", "Complimentary Breakfast"]
+        }
+      ],
+      reviews: [
+        {
+          name: "Sarah Johnson",
+          rating: 5,
+          date: "2024-01-15",
+          comment: "Absolutely wonderful stay! The service was exceptional and the room was beautifully appointed. The location is perfect for exploring the city."
+        },
+        {
+          name: "Michael Chen",
+          rating: 4,
+          date: "2024-01-10", 
+          comment: "Great hotel with fantastic amenities. The pool area is amazing and staff were very helpful. Only minor issue was the breakfast could be improved."
+        },
+        {
+          name: "Emily Davis",
+          rating: 5,
+          date: "2024-01-08",
+          comment: "This hotel exceeded all expectations. The spa treatments were incredible and the room service was prompt. Definitely coming back!"
+        }
+      ]
+    };
+    
+    return enhancedHotel;
   }
 
 async search(query) {
