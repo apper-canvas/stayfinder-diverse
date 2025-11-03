@@ -450,7 +450,6 @@ const handleBooking = () => {
                 onClick={handleBooking}
                 className="w-full"
                 size="lg"
-                disabled={!checkIn || !checkOut || !selectedRoom || nights <= 0}
 disabled={!checkIn || !checkOut || !selectedRoom || nights <= 0}
               >
                 <ApperIcon name="Calendar" className="w-5 h-5" />
