@@ -194,8 +194,29 @@ async search(query) {
       throw new Error("Hotel not found");
     }
     
-    const deleted = hotelsData.splice(index, 1)[0];
+const deleted = hotelsData.splice(index, 1)[0];
     return { ...deleted };
+  }
+
+  async createBooking(hotelId, bookingData) {
+    await delay(800);
+    
+    const hotel = hotelsData.find(h => h.Id === parseInt(hotelId));
+    if (!hotel) {
+      throw new Error("Hotel not found");
+    }
+    
+    // In a real application, this would create a booking record
+    // For now, we'll just return a success response with booking details
+    const confirmationNumber = `BK${Date.now().toString().slice(-6)}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
+    
+    return {
+      confirmationNumber,
+      hotel,
+      bookingDetails: bookingData,
+      status: 'confirmed',
+      bookingDate: new Date().toISOString()
+    };
   }
 }
 

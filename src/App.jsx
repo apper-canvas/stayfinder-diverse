@@ -6,6 +6,7 @@ import Destinations from "@/components/pages/Destinations";
 import Deals from "@/components/pages/Deals";
 import Help from "@/components/pages/Help";
 import HotelDetails from "@/components/pages/HotelDetails";
+import BookingConfirmationPage from "@/components/pages/BookingConfirmationPage";
 function App() {
   return (
     <div className="min-h-screen bg-background">
@@ -18,6 +19,7 @@ function App() {
           <Route path="/deals" element={<Deals />} />
           <Route path="/help" element={<Help />} />
           <Route path="/hotel/:id" element={<HotelDetails />} />
+          <Route path="/booking/:confirmationNumber" element={<BookingConfirmationPage />} />
         </Routes>
       </main>
 

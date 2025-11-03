@@ -1,11 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
-import ApperIcon from '@/components/ApperIcon';
-import Button from '@/components/atoms/Button';
-import Input from '@/components/atoms/Input';
-import Card from '@/components/atoms/Card';
-import hotelService from '@/services/api/hotelService';
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import BookingConfirmation from "@/components/organisms/BookingConfirmation";
+import hotelService from "@/services/api/hotelService";
+import ApperIcon from "@/components/ApperIcon";
+import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import Card from "@/components/atoms/Card";
+import Home from "@/components/pages/Home";
 
 const HotelDetails = () => {
   const { id } = useParams();
@@ -16,12 +18,12 @@ const HotelDetails = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   
   // Booking form state
-  const [checkIn, setCheckIn] = useState('');
+const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
   const [selectedRoom, setSelectedRoom] = useState(null);
-
+  const [showBookingModal, setShowBookingModal] = useState(false);
   useEffect(() => {
     const fetchHotel = async () => {
       try {
@@ -70,7 +72,7 @@ const HotelDetails = () => {
     return selectedRoom.pricePerNight * nights * rooms;
   };
 
-  const handleBooking = () => {
+const handleBooking = () => {
     if (!checkIn || !checkOut || !selectedRoom) {
       toast.error('Please select check-in date, check-out date, and room type');
       return;
@@ -82,7 +84,7 @@ const HotelDetails = () => {
       return;
     }
     
-    toast.success(`Booking confirmed! Total: $${totalPrice}`);
+    setShowBookingModal(true);
   };
 
   if (loading) {
@@ -415,10 +417,10 @@ const HotelDetails = () => {
                 size="lg"
                 disabled={!checkIn || !checkOut || !selectedRoom || nights <= 0}
               >
-                <ApperIcon name="Calendar" className="w-5 h-5" />
+<ApperIcon name="Calendar" className="w-5 h-5" />
                 Book Now
               </Button>
-
+              
               <p className="text-xs text-gray-500 mt-3 text-center">
                 Free cancellation • No booking fees
               </p>
@@ -426,6 +428,22 @@ const HotelDetails = () => {
           </div>
         </div>
       </div>
+      
+      {/* Booking Confirmation Modal */}
+      <BookingConfirmation 
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        hotel={hotel}
+        bookingDetails={{
+          checkIn,
+          checkOut,
+          rooms,
+          guests,
+          selectedRoom
+        }}
+        totalPrice={totalPrice}
+        nights={nights}
+      />
     </div>
   );
 };
