@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import BookingConfirmation from "@/components/organisms/BookingConfirmation";
 import hotelService from "@/services/api/hotelService";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
 import Input from "@/components/atoms/Input";
 import Card from "@/components/atoms/Card";
 import Home from "@/components/pages/Home";
-
+import BookingConfirmation from "@/components/organisms/BookingConfirmation";
+import ReviewForm from "@/components/organisms/ReviewForm";
 const HotelDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,28 +23,36 @@ const [checkIn, setCheckIn] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
   const [selectedRoom, setSelectedRoom] = useState(null);
-  const [showBookingModal, setShowBookingModal] = useState(false);
-  useEffect(() => {
-    const fetchHotel = async () => {
-      try {
-        setLoading(true);
-        const hotelData = await hotelService.getById(id);
-        setHotel(hotelData);
-        if (hotelData.roomTypes && hotelData.roomTypes.length > 0) {
-          setSelectedRoom(hotelData.roomTypes[0]);
-        }
-      } catch (err) {
-        setError(err.message);
-        toast.error('Failed to load hotel details');
-      } finally {
-        setLoading(false);
+const [showBookingModal, setShowBookingModal] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+const fetchHotel = async () => {
+    try {
+      setLoading(true);
+      const hotelData = await hotelService.getById(id);
+      setHotel(hotelData);
+      if (hotelData.roomTypes && hotelData.roomTypes.length > 0) {
+        setSelectedRoom(hotelData.roomTypes[0]);
       }
-    };
+    } catch (err) {
+      setError(err.message);
+      toast.error('Failed to load hotel details');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (id) {
       fetchHotel();
     }
   }, [id]);
+
+  const handleReviewSubmitSuccess = () => {
+    toast.success('Thank you for your review! It has been added successfully.');
+    setShowReviewForm(false);
+    // Refresh hotel data to show new review
+    fetchHotel();
+  };
 
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -295,25 +303,52 @@ const handleBooking = () => {
 
             {/* Guest Reviews */}
             {hotel.reviews && hotel.reviews.length > 0 && (
-              <Card className="p-6">
-                <h2 className="font-display text-heading-lg text-gray-900 mb-4">
-                  Guest Reviews
-                </h2>
+<Card className="p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display text-heading-lg text-gray-900">
+                    Guest Reviews
+                  </h2>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowReviewForm(!showReviewForm)}
+                  >
+                    <ApperIcon name="PenTool" size={16} className="mr-2" />
+                    Write Review
+                  </Button>
+                </div>
+                
+                {showReviewForm && (
+                  <div className="mb-6">
+                    <ReviewForm
+                      hotelId={hotel.Id}
+                      onSubmitSuccess={handleReviewSubmitSuccess}
+                    />
+                  </div>
+                )}
+                
                 <div className="space-y-6">
-                  {hotel.reviews.map((review, index) => (
-                    <div key={index} className="border-b border-gray-100 last:border-b-0 pb-6 last:pb-0">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h4 className="font-semibold text-gray-900">{review.name}</h4>
-                          <div className="flex items-center gap-1 mt-1">
-                            {renderStars(review.rating)}
+                  {hotel.reviews && hotel.reviews.length > 0 ? (
+                    hotel.reviews.map((review, index) => (
+                      <div key={index} className="border-b border-gray-100 last:border-b-0 pb-6 last:pb-0">
+                        <div className="flex items-start justify-between mb-3">
+                          <div>
+                            <h4 className="font-semibold text-gray-900">{review.name}</h4>
+                            <div className="flex items-center gap-1 mt-1">
+                              {renderStars(review.rating)}
+                            </div>
                           </div>
+                          <span className="text-sm text-gray-500">{review.date}</span>
                         </div>
-                        <span className="text-sm text-gray-500">{review.date}</span>
+                        <p className="text-gray-700 leading-relaxed">{review.comment}</p>
                       </div>
-                      <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <ApperIcon name="MessageCircle" size={48} className="mx-auto text-gray-300 mb-3" />
+                      <p className="text-gray-500">No reviews yet. Be the first to share your experience!</p>
                     </div>
-                  ))}
+                  )}
                 </div>
               </Card>
             )}

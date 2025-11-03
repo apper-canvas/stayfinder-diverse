@@ -198,7 +198,7 @@ const deleted = hotelsData.splice(index, 1)[0];
     return { ...deleted };
   }
 
-  async createBooking(hotelId, bookingData) {
+async createBooking(hotelId, bookingData) {
     await delay(800);
     
     const hotel = hotelsData.find(h => h.Id === parseInt(hotelId));
@@ -216,6 +216,57 @@ const deleted = hotelsData.splice(index, 1)[0];
       bookingDetails: bookingData,
       status: 'confirmed',
       bookingDate: new Date().toISOString()
+    };
+  }
+
+  async addReview(hotelId, reviewData) {
+    await delay(500);
+    
+    const { rating, comment, guestName } = reviewData;
+    
+    // Validation
+    if (!rating || rating < 1 || rating > 5) {
+      throw new Error("Rating must be between 1 and 5 stars");
+    }
+    
+    if (!comment || comment.trim().length < 10) {
+      throw new Error("Comment must be at least 10 characters long");
+    }
+    
+    if (!guestName || guestName.trim().length < 2) {
+      throw new Error("Guest name is required");
+    }
+    
+    const hotel = hotelsData.find(h => h.Id === parseInt(hotelId));
+    if (!hotel) {
+      throw new Error("Hotel not found");
+    }
+    
+    // Create new review
+    const newReview = {
+      name: guestName.trim(),
+      rating: parseInt(rating),
+      comment: comment.trim(),
+      date: new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })
+    };
+    
+    // Add review to hotel (in real app, this would update the database)
+    hotel.reviews = hotel.reviews || [];
+    hotel.reviews.unshift(newReview); // Add to beginning
+    
+    // Update overall rating (simple average)
+    const totalRating = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
+    hotel.rating = Math.round((totalRating / hotel.reviews.length) * 10) / 10;
+    
+    return {
+      success: true,
+      review: newReview,
+      newOverallRating: hotel.rating,
+      totalReviews: hotel.reviews.length
     };
   }
 }
