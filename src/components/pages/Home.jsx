@@ -1,17 +1,14 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
 import HeroSection from "@/components/organisms/HeroSection";
 import HotelsGrid from "@/components/organisms/HotelsGrid";
-import HotelModal from "@/components/molecules/HotelModal";
 import useHotels from "@/hooks/useHotels";
 
 const Home = () => {
   const { hotels, loading, error, searchHotels, retry } = useHotels(true);
-  const [selectedHotel, setSelectedHotel] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentSearchQuery, setCurrentSearchQuery] = useState(null);
 
-  const handleSearch = async (searchQuery) => {
+const handleSearch = async (searchQuery) => {
     try {
       setCurrentSearchQuery(searchQuery);
       const results = await searchHotels(searchQuery);
@@ -27,15 +24,11 @@ const Home = () => {
   };
 
   const handleViewDetails = (hotel) => {
-    setSelectedHotel(hotel);
-    setIsModalOpen(true);
+    // Navigate to hotel details page or show hotel details modal
+    console.log("Viewing details for hotel:", hotel);
+    // TODO: Implement navigation to hotel details page
+    // Example: navigate(`/hotels/${hotel.id}`)
   };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedHotel(null);
-  };
-
   return (
     <div className="min-h-screen">
       <HeroSection onSearch={handleSearch} loading={loading} />
@@ -49,11 +42,6 @@ const Home = () => {
         searchQuery={currentSearchQuery}
       />
 
-      <HotelModal
-        hotel={selectedHotel}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-      />
     </div>
   );
 };
