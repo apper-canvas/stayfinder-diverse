@@ -47,17 +47,16 @@
       }
     }
   },
-  "/hotel/:id": {
+"/hotel/:id": {
     "allow": {
       "when": {
         "conditions": [
           {
-            "label": "User must be logged in to view hotel details",
-            "rule": "authenticated"
+            "label": "Hotel details are publicly accessible",
+            "rule": "public"
           }
         ]
-      },
-      "redirectOnDeny": "/login"
+      }
     }
   },
   "/booking/:confirmationNumber": {
