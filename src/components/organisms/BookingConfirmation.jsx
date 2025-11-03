@@ -10,13 +10,14 @@ import { cn } from '@/utils/cn';
 import bookingService from '@/services/api/bookingService';
 
 function BookingConfirmation({ 
-  isOpen, 
-  onClose, 
+isOpen, 
+  onClose,
+  onConfirm,
   hotel, 
   bookingDetails,
   totalPrice,
   nights,
-  taxes = 42 
+  taxes = 42
 }) {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState('details'); // 'details', 'guest-info', 'success'

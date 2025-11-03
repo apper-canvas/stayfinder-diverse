@@ -1,13 +1,49 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
 import hotelService from "@/services/api/hotelService";
+import bookingService from "@/services/api/bookingService";
 import HotelCard from "@/components/molecules/HotelCard";
 import Loading from "@/components/ui/Loading";
+import BookingConfirmation from "@/components/organisms/BookingConfirmation";
 
 const Deals = () => {
-  const [deals, setDeals] = useState([]);
+const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState(null);
+
+  const handleBookDeal = (deal) => {
+    setSelectedDeal(deal);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleBookingConfirm = async (bookingData) => {
+    try {
+      const booking = await bookingService.createBooking({
+        ...bookingData,
+        hotelId: selectedDeal.id,
+        hotelName: selectedDeal.name,
+        originalPrice: selectedDeal.originalPrice,
+        discountedPrice: selectedDeal.price,
+        dealType: selectedDeal.category,
+        savings: selectedDeal.originalPrice - selectedDeal.price
+      });
+      
+      toast.success(`Booking confirmed! Confirmation number: ${booking.confirmationNumber}`);
+      setIsBookingModalOpen(false);
+      setSelectedDeal(null);
+    } catch (error) {
+      console.error('Booking failed:', error);
+      toast.error('Failed to complete booking. Please try again.');
+    }
+  };
+
+  const handleBookingCancel = () => {
+    setIsBookingModalOpen(false);
+    setSelectedDeal(null);
+  };
 
   useEffect(() => {
     const loadDeals = async () => {
@@ -187,9 +223,10 @@ const Deals = () => {
                         <span className="text-xs text-gray-500">per night</span>
                       </div>
                       
-                      <motion.button
+<motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
+                        onClick={() => handleBookDeal(deal)}
                         className="bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
                       >
                         Book Deal
@@ -228,6 +265,23 @@ const Deals = () => {
           </motion.div>
         </div>
       </section>
+{/* Booking Modal */}
+      {isBookingModalOpen && selectedDeal && (
+        <BookingConfirmation
+          isOpen={isBookingModalOpen}
+          onClose={handleBookingCancel}
+          onConfirm={handleBookingConfirm}
+          hotel={selectedDeal}
+          bookingDetails={{
+            checkIn: new Date(),
+            checkOut: new Date(Date.now() + 24 * 60 * 60 * 1000), // Tomorrow
+            guests: { adults: 2, children: 0 }
+          }}
+          totalPrice={selectedDeal.price}
+          nights={1}
+          taxes={42}
+        />
+      )}
     </div>
   );
 };
