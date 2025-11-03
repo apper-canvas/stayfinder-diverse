@@ -43,7 +43,7 @@ const HotelCard = ({ hotel, onViewDetails }) => {
           </div>
         ) : (
           <img
-            src={hotel.imageUrl}
+src={hotel.imageUrl}
             alt={hotel.name}
             className={`w-full h-full object-cover transition-all duration-300 group-hover:scale-110 ${
               imageLoaded ? "opacity-100" : "opacity-0"
@@ -61,17 +61,17 @@ const HotelCard = ({ hotel, onViewDetails }) => {
       <div className="p-4 flex flex-col flex-1">
         {/* Hotel Name */}
         <h3 className="font-display text-heading-md text-gray-900 mb-2 group-hover:text-primary transition-colors duration-200 line-clamp-1">
-          {hotel.name}
+{hotel.name}
         </h3>
 
         {/* Location and Rating */}
         <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1 text-gray-600">
+<div className="flex items-center gap-1 text-gray-600">
             <ApperIcon name="MapPin" className="w-4 h-4" />
             <span className="text-sm line-clamp-1">{hotel.location}</span>
           </div>
           
-          <div className="flex items-center gap-1">
+<div className="flex items-center gap-1">
             {renderStars(hotel.starRating)}
           </div>
         </div>
@@ -79,7 +79,7 @@ const HotelCard = ({ hotel, onViewDetails }) => {
         {/* Price and Button */}
         <div className="flex items-center justify-between mt-auto">
           <div>
-            <div className="text-heading-md font-bold text-gray-900">
+<div className="text-heading-md font-bold text-gray-900">
               ${hotel.pricePerNight}
               <span className="text-sm font-normal text-gray-500 ml-1">
                 per night

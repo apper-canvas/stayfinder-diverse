@@ -153,7 +153,7 @@ const handleBooking = () => {
           
           <div className="flex items-start justify-between">
             <div>
-              <h1 className="font-display text-display-md text-gray-900 mb-2">
+<h1 className="font-display text-display-md text-gray-900 mb-2">
                 {hotel.name}
               </h1>
               <div className="flex items-center gap-4 mb-2">

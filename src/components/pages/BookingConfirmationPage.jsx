@@ -24,7 +24,7 @@ function BookingConfirmationPage() {
     try {
       setLoading(true);
       setError(null);
-      const bookingData = await bookingService.getBookingByConfirmation(confirmationNumber);
+const bookingData = await bookingService.getBookingByConfirmation(confirmationNumber);
       setBooking(bookingData);
     } catch (err) {
       setError('Booking not found. Please check your confirmation number.');

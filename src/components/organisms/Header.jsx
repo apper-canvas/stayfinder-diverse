@@ -1,11 +1,79 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ApperIcon from "@/components/ApperIcon";
+import { AuthContext } from "../../App";
+// Auth buttons component
+const AuthButtons = ({ isMobile = false, onClose }) => {
+  const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+
+  const handleSignIn = () => {
+    if (onClose) onClose();
+    navigate('/login');
+  };
+
+  const handleSignUp = () => {
+    if (onClose) onClose();
+    navigate('/signup');
+  };
+
+  const handleLogout = async () => {
+    if (onClose) onClose();
+    await logout();
+  };
+
+  if (isAuthenticated) {
+    return (
+      <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center gap-4'}`}>
+        <div className={`${isMobile ? 'px-4 py-2' : ''} text-gray-700`}>
+          Welcome, {user?.firstName || user?.name || 'Guest'}
+        </div>
+        <button 
+          onClick={handleLogout}
+          className={`${
+            isMobile 
+              ? 'block w-full text-left px-4 py-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors'
+              : 'text-gray-700 hover:text-primary font-medium transition-colors'
+          }`}
+        >
+          Logout
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'items-center gap-4'}`}>
+      <button 
+        onClick={handleSignIn}
+        className={`${
+          isMobile 
+            ? 'block w-full text-left px-4 py-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors'
+            : 'text-gray-700 hover:text-primary font-medium transition-colors'
+        }`}
+      >
+        Sign In
+      </button>
+      <button 
+        onClick={handleSignUp}
+        className={`${
+          isMobile 
+            ? 'block w-full bg-gradient-to-r from-primary to-primary-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200'
+            : 'bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl'
+        }`}
+      >
+        Sign Up
+      </button>
+    </div>
+  );
+};
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
+  const location = useLocation();
   const navItems = [
     { label: "Home", href: "/" },
     { label: "Destinations", href: "/destinations" },
@@ -42,13 +110,8 @@ const Header = () => {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden md:flex items-center gap-4">
-            <button className="text-gray-700 hover:text-primary font-medium transition-colors">
-              Sign In
-            </button>
-            <button className="bg-gradient-to-r from-primary to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl">
-              Sign Up
-            </button>
+<div className="hidden md:flex items-center gap-4">
+            <AuthButtons />
           </div>
 
           {/* Mobile Menu Button */}
@@ -87,18 +150,9 @@ const Header = () => {
               ))}
               <hr className="my-2" />
               <div className="space-y-2">
-                <button 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
-                >
-                  Sign In
-                </button>
-                <button 
-                  onClick={() => setIsMenuOpen(false)}
-                  className="block w-full bg-gradient-to-r from-primary to-primary-600 text-white px-4 py-3 rounded-lg font-medium transition-all duration-200"
-                >
-                  Sign Up
-                </button>
+<div className="space-y-2">
+                  <AuthButtons isMobile={true} onClose={() => setIsMenuOpen(false)} />
+                </div>
               </div>
             </div>
           </motion.div>

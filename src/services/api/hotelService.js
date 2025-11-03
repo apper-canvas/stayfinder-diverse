@@ -1,107 +1,415 @@
-import hotelsData from "@/services/mockData/hotels.json";
-
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
 class HotelService {
-  async getAll() {
-    await delay(300);
-    return [...hotelsData];
+  constructor() {
+    // Initialize ApperClient
+    this.apperClient = null;
+    this.initializeClient();
   }
 
-async getById(id) {
-    await delay(200);
-    const hotel = hotelsData.find(h => h.Id === parseInt(id));
-    if (!hotel) {
+  initializeClient() {
+    if (typeof window !== 'undefined' && window.ApperSDK) {
+      const { ApperClient } = window.ApperSDK;
+      this.apperClient = new ApperClient({
+        apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+        apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+      });
+    }
+  }
+
+  async getAll() {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "location_c"}},
+          {"field": {"Name": "city_c"}},
+          {"field": {"Name": "country_c"}},
+          {"field": {"Name": "star_rating_c"}},
+          {"field": {"Name": "price_per_night_c"}},
+          {"field": {"Name": "currency_c"}},
+          {"field": {"Name": "image_url_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "coordinates_c"}}
+        ],
+        orderBy: [{"fieldName": "star_rating_c", "sorttype": "DESC"}],
+        pagingInfo: {"limit": 50, "offset": 0}
+      };
+      
+      const response = await this.apperClient.fetchRecords('hotel_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+      
+      // Transform database fields to UI format
+      return response.data.map(hotel => ({
+        Id: hotel.Id,
+        name: hotel.name_c || hotel.Name || '',
+        location: hotel.location_c || '',
+        city: hotel.city_c || '',
+        country: hotel.country_c || '',
+        starRating: parseInt(hotel.star_rating_c) || 3,
+        pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
+        currency: hotel.currency_c || 'USD',
+        imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
+        description: hotel.description_c || '',
+        coordinates: hotel.coordinates_c ? JSON.parse(hotel.coordinates_c) : { lat: 0, lng: 0 }
+      }));
+    } catch (error) {
+      console.error('Error fetching hotels:', error);
+      return [];
+    }
+  }
+
+  async getById(id) {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "location_c"}},
+          {"field": {"Name": "city_c"}},
+          {"field": {"Name": "country_c"}},
+          {"field": {"Name": "star_rating_c"}},
+          {"field": {"Name": "price_per_night_c"}},
+          {"field": {"Name": "currency_c"}},
+          {"field": {"Name": "image_url_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "description_c"}},
+          {"field": {"Name": "coordinates_c"}},
+          {"field": {"Name": "room_types_c"}},
+          {"field": {"Name": "reviews_c"}}
+        ]
+      };
+      
+      const response = await this.apperClient.getRecordById('hotel_c', parseInt(id), params);
+      
+      if (!response.data) {
+        throw new Error("Hotel not found");
+      }
+      
+      const hotel = response.data;
+      
+      // Transform database fields to UI format with enhancements
+      const transformedHotel = {
+        Id: hotel.Id,
+        name: hotel.name_c || hotel.Name || '',
+        location: hotel.location_c || '',
+        city: hotel.city_c || '',
+        country: hotel.country_c || '',
+        starRating: parseInt(hotel.star_rating_c) || 3,
+        pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
+        currency: hotel.currency_c || 'USD',
+        imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [
+          "Free WiFi", "Swimming Pool", "Fitness Center", "Spa & Wellness", 
+          "Restaurant", "Bar", "Room Service", "Valet Parking", 
+          "Air Conditioning", "Laundry Service", "Business Center"
+        ],
+        description: hotel.description_c || 'A beautiful hotel with modern amenities and exceptional service.',
+        coordinates: hotel.coordinates_c ? JSON.parse(hotel.coordinates_c) : { lat: 0, lng: 0 },
+        roomTypes: hotel.room_types_c ? JSON.parse(hotel.room_types_c) : [
+          {
+            name: "Standard Room",
+            description: "Comfortable room with modern amenities and city views",
+            pricePerNight: parseFloat(hotel.price_per_night_c) || 150,
+            features: ["Queen Bed", "City View", "Free WiFi", "Air Conditioning"]
+          },
+          {
+            name: "Deluxe Room", 
+            description: "Spacious room with premium furnishing and enhanced amenities",
+            pricePerNight: Math.floor((parseFloat(hotel.price_per_night_c) || 150) * 1.3),
+            features: ["King Bed", "Ocean View", "Balcony", "Mini Bar", "Bathrobes"]
+          }
+        ],
+        reviews: hotel.reviews_c ? JSON.parse(hotel.reviews_c) : []
+      };
+      
+      return transformedHotel;
+    } catch (error) {
+      console.error('Error fetching hotel by ID:', error);
       throw new Error("Hotel not found");
     }
-    
-    // Enhanced hotel data with additional details for the details page
-    const enhancedHotel = {
-      ...hotel,
-      images: [
-        hotel.imageUrl,
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-      ],
-      amenities: [
-        "Free WiFi", "Swimming Pool", "Fitness Center", "Spa & Wellness", 
-        "Restaurant", "Bar", "Room Service", "Valet Parking", 
-        "Air Conditioning", "Laundry Service", "Business Center", "Pet Friendly"
-      ],
-      roomTypes: [
-        {
-          name: "Standard Room",
-          description: "Comfortable room with modern amenities and city views",
-          pricePerNight: hotel.pricePerNight,
-          features: ["Queen Bed", "City View", "Free WiFi", "Air Conditioning"]
-        },
-        {
-          name: "Deluxe Room", 
-          description: "Spacious room with premium furnishing and enhanced amenities",
-          pricePerNight: Math.floor(hotel.pricePerNight * 1.3),
-          features: ["King Bed", "Ocean View", "Balcony", "Mini Bar", "Bathrobes"]
-        },
-        {
-          name: "Suite",
-          description: "Luxury suite with separate living area and premium services", 
-          pricePerNight: Math.floor(hotel.pricePerNight * 1.8),
-          features: ["King Bed", "Living Room", "Premium View", "Butler Service", "Complimentary Breakfast"]
-        }
-      ],
-      reviews: [
-        {
-          name: "Sarah Johnson",
-          rating: 5,
-          date: "2024-01-15",
-          comment: "Absolutely wonderful stay! The service was exceptional and the room was beautifully appointed. The location is perfect for exploring the city."
-        },
-        {
-          name: "Michael Chen",
-          rating: 4,
-          date: "2024-01-10", 
-          comment: "Great hotel with fantastic amenities. The pool area is amazing and staff were very helpful. Only minor issue was the breakfast could be improved."
-        },
-        {
-          name: "Emily Davis",
-          rating: 5,
-          date: "2024-01-08",
-          comment: "This hotel exceeded all expectations. The spa treatments were incredible and the room service was prompt. Definitely coming back!"
-        }
-      ]
-    };
-    
-    return enhancedHotel;
   }
 
-async search(query) {
-    await delay(400);
+  async search(query) {
+    if (!this.apperClient) this.initializeClient();
     
-    const { destination, checkInDate, checkOutDate, adults, children } = query;
-    
-    if (!destination) {
-      return [...hotelsData];
+    try {
+      const { destination } = query;
+      
+      let whereConditions = [];
+      
+      if (destination) {
+        whereConditions = [
+          {"FieldName": "location_c", "Operator": "Contains", "Values": [destination]}
+        ];
+      }
+      
+      const params = {
+        fields: [
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "location_c"}},
+          {"field": {"Name": "city_c"}},
+          {"field": {"Name": "country_c"}},
+          {"field": {"Name": "star_rating_c"}},
+          {"field": {"Name": "price_per_night_c"}},
+          {"field": {"Name": "currency_c"}},
+          {"field": {"Name": "image_url_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "description_c"}}
+        ],
+        where: whereConditions,
+        orderBy: [{"fieldName": "star_rating_c", "sorttype": "DESC"}],
+        pagingInfo: {"limit": 50, "offset": 0}
+      };
+      
+      const response = await this.apperClient.fetchRecords('hotel_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+      
+      return response.data.map(hotel => ({
+        Id: hotel.Id,
+        name: hotel.name_c || hotel.Name || '',
+        location: hotel.location_c || '',
+        city: hotel.city_c || '',
+        country: hotel.country_c || '',
+        starRating: parseInt(hotel.star_rating_c) || 3,
+        pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
+        currency: hotel.currency_c || 'USD',
+        imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
+        description: hotel.description_c || ''
+      }));
+    } catch (error) {
+      console.error('Error searching hotels:', error);
+      return [];
     }
-
-    // Filter hotels based on destination (city or location)
-    const filtered = hotelsData.filter(hotel => 
-      hotel.location.toLowerCase().includes(destination.toLowerCase()) ||
-      hotel.city.toLowerCase().includes(destination.toLowerCase()) ||
-      hotel.country.toLowerCase().includes(destination.toLowerCase())
-    );
-
-    // In a real app, this would also filter by availability based on dates
-    // and room capacity based on guests
-    
-    return filtered.map(hotel => ({ ...hotel }));
   }
 
-  async filterHotels(hotels, filters) {
-    await delay(200); // Simulate processing time
+  async getFeatured(limit = 6) {
+    if (!this.apperClient) this.initializeClient();
     
-    if (!filters) return [...hotels];
+    try {
+      const params = {
+        fields: [
+          {"field": {"Name": "name_c"}},
+          {"field": {"Name": "location_c"}},
+          {"field": {"Name": "city_c"}},
+          {"field": {"Name": "country_c"}},
+          {"field": {"Name": "star_rating_c"}},
+          {"field": {"Name": "price_per_night_c"}},
+          {"field": {"Name": "currency_c"}},
+          {"field": {"Name": "image_url_c"}},
+          {"field": {"Name": "images_c"}},
+          {"field": {"Name": "amenities_c"}},
+          {"field": {"Name": "description_c"}}
+        ],
+        orderBy: [{"fieldName": "star_rating_c", "sorttype": "DESC"}],
+        pagingInfo: {"limit": limit, "offset": 0}
+      };
+      
+      const response = await this.apperClient.fetchRecords('hotel_c', params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        return [];
+      }
+      
+      return response.data.map(hotel => ({
+        Id: hotel.Id,
+        name: hotel.name_c || hotel.Name || '',
+        location: hotel.location_c || '',
+        city: hotel.city_c || '',
+        country: hotel.country_c || '',
+        starRating: parseInt(hotel.star_rating_c) || 3,
+        pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
+        currency: hotel.currency_c || 'USD',
+        imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
+        description: hotel.description_c || ''
+      }));
+    } catch (error) {
+      console.error('Error fetching featured hotels:', error);
+      return [];
+    }
+  }
+
+  async addReview(hotelId, reviewData) {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const { rating, comment, guestName } = reviewData;
+      
+      // Validation
+      if (!rating || rating < 1 || rating > 5) {
+        throw new Error("Rating must be between 1 and 5 stars");
+      }
+      
+      if (!comment || comment.trim().length < 10) {
+        throw new Error("Comment must be at least 10 characters long");
+      }
+      
+      if (!guestName || guestName.trim().length < 2) {
+        throw new Error("Guest name is required");
+      }
+      
+      // Get current hotel
+      const hotel = await this.getById(hotelId);
+      if (!hotel) {
+        throw new Error("Hotel not found");
+      }
+      
+      // Create new review
+      const newReview = {
+        name: guestName.trim(),
+        rating: parseInt(rating),
+        comment: comment.trim(),
+        date: new Date().toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })
+      };
+      
+      // Update reviews in hotel
+      const updatedReviews = [newReview, ...(hotel.reviews || [])];
+      
+      // Update hotel record
+      const updateParams = {
+        records: [{
+          Id: parseInt(hotelId),
+          reviews_c: JSON.stringify(updatedReviews)
+        }]
+      };
+      
+      const response = await this.apperClient.updateRecord('hotel_c', updateParams);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return {
+        success: true,
+        review: newReview,
+        totalReviews: updatedReviews.length
+      };
+    } catch (error) {
+      console.error('Error adding review:', error);
+      throw error;
+    }
+  }
+
+  // Additional methods for compatibility
+  async create(hotelData) {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const params = {
+        records: [{
+          name_c: hotelData.name || '',
+          location_c: hotelData.location || '',
+          city_c: hotelData.city || '',
+          country_c: hotelData.country || '',
+          star_rating_c: parseInt(hotelData.starRating) || 3,
+          price_per_night_c: parseFloat(hotelData.pricePerNight) || 0,
+          currency_c: hotelData.currency || 'USD',
+          image_url_c: hotelData.imageUrl || '',
+          images_c: JSON.stringify(hotelData.images || []),
+          amenities_c: JSON.stringify(hotelData.amenities || []),
+          description_c: hotelData.description || ''
+        }]
+      };
+      
+      const response = await this.apperClient.createRecord('hotel_c', params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results[0].data;
+    } catch (error) {
+      console.error('Error creating hotel:', error);
+      throw error;
+    }
+  }
+
+  async update(id, hotelData) {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const updateFields = {
+        Id: parseInt(id)
+      };
+      
+      if (hotelData.name) updateFields.name_c = hotelData.name;
+      if (hotelData.location) updateFields.location_c = hotelData.location;
+      if (hotelData.city) updateFields.city_c = hotelData.city;
+      if (hotelData.country) updateFields.country_c = hotelData.country;
+      if (hotelData.starRating) updateFields.star_rating_c = parseInt(hotelData.starRating);
+      if (hotelData.pricePerNight) updateFields.price_per_night_c = parseFloat(hotelData.pricePerNight);
+      if (hotelData.currency) updateFields.currency_c = hotelData.currency;
+      if (hotelData.imageUrl) updateFields.image_url_c = hotelData.imageUrl;
+      if (hotelData.images) updateFields.images_c = JSON.stringify(hotelData.images);
+      if (hotelData.amenities) updateFields.amenities_c = JSON.stringify(hotelData.amenities);
+      if (hotelData.description) updateFields.description_c = hotelData.description;
+      
+      const params = {
+        records: [updateFields]
+      };
+      
+      const response = await this.apperClient.updateRecord('hotel_c', params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return response.results[0].data;
+    } catch (error) {
+      console.error('Error updating hotel:', error);
+      throw error;
+    }
+  }
+
+  async delete(id) {
+    if (!this.apperClient) this.initializeClient();
+    
+    try {
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await this.apperClient.deleteRecord('hotel_c', params);
+      
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+      
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting hotel:', error);
+      throw error;
+    }
+  }
+
+  // Filter hotels method for compatibility
+  async filterHotels(hotels, filters) {
+    if (!filters) return hotels;
 
     let filtered = [...hotels];
 
@@ -123,151 +431,14 @@ async search(query) {
     // Amenities filter
     if (filters.amenities && filters.amenities.length > 0) {
       filtered = filtered.filter(hotel => {
-        // Mock amenity mapping based on hotel properties
-        const hotelAmenities = [];
-        
-        // Basic amenity inference from hotel data
-        if (hotel.starRating >= 3) hotelAmenities.push('wifi');
-        if (hotel.starRating >= 4) hotelAmenities.push('pool');
-        if (hotel.starRating >= 2) hotelAmenities.push('parking');
-        if (hotel.starRating >= 3) hotelAmenities.push('restaurant');
-
-        // Check if hotel has all selected amenities
-        return filters.amenities.every(amenity => hotelAmenities.includes(amenity));
+        const hotelAmenities = hotel.amenities.map(a => a.toLowerCase());
+        return filters.amenities.every(amenity => 
+          hotelAmenities.some(ha => ha.includes(amenity.toLowerCase()))
+        );
       });
     }
 
     return filtered;
-  }
-
-  async getFeatured(limit = 6) {
-    await delay(250);
-    
-    // Return highest-rated hotels
-    const featured = [...hotelsData]
-      .sort((a, b) => b.starRating - a.starRating)
-      .slice(0, limit);
-      
-    return featured;
-  }
-
-  async getByDestination(destination, limit = 12) {
-    await delay(300);
-    
-    const filtered = hotelsData.filter(hotel =>
-      hotel.city.toLowerCase().includes(destination.toLowerCase()) ||
-      hotel.location.toLowerCase().includes(destination.toLowerCase())
-    ).slice(0, limit);
-    
-    return filtered.map(hotel => ({ ...hotel }));
-  }
-
-  async create(hotel) {
-    await delay(300);
-    
-    const newHotel = {
-      ...hotel,
-      Id: Math.max(...hotelsData.map(h => h.Id)) + 1
-    };
-    
-    hotelsData.push(newHotel);
-    return { ...newHotel };
-  }
-
-  async update(id, hotelData) {
-    await delay(300);
-    
-    const index = hotelsData.findIndex(h => h.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Hotel not found");
-    }
-    
-    hotelsData[index] = { ...hotelsData[index], ...hotelData };
-    return { ...hotelsData[index] };
-  }
-
-  async delete(id) {
-    await delay(200);
-    
-    const index = hotelsData.findIndex(h => h.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Hotel not found");
-    }
-    
-const deleted = hotelsData.splice(index, 1)[0];
-    return { ...deleted };
-  }
-
-async createBooking(hotelId, bookingData) {
-    await delay(800);
-    
-    const hotel = hotelsData.find(h => h.Id === parseInt(hotelId));
-    if (!hotel) {
-      throw new Error("Hotel not found");
-    }
-    
-    // In a real application, this would create a booking record
-    // For now, we'll just return a success response with booking details
-    const confirmationNumber = `BK${Date.now().toString().slice(-6)}${Math.random().toString(36).substr(2, 4).toUpperCase()}`;
-    
-    return {
-      confirmationNumber,
-      hotel,
-      bookingDetails: bookingData,
-      status: 'confirmed',
-      bookingDate: new Date().toISOString()
-    };
-  }
-
-  async addReview(hotelId, reviewData) {
-    await delay(500);
-    
-    const { rating, comment, guestName } = reviewData;
-    
-    // Validation
-    if (!rating || rating < 1 || rating > 5) {
-      throw new Error("Rating must be between 1 and 5 stars");
-    }
-    
-    if (!comment || comment.trim().length < 10) {
-      throw new Error("Comment must be at least 10 characters long");
-    }
-    
-    if (!guestName || guestName.trim().length < 2) {
-      throw new Error("Guest name is required");
-    }
-    
-    const hotel = hotelsData.find(h => h.Id === parseInt(hotelId));
-    if (!hotel) {
-      throw new Error("Hotel not found");
-    }
-    
-    // Create new review
-    const newReview = {
-      name: guestName.trim(),
-      rating: parseInt(rating),
-      comment: comment.trim(),
-      date: new Date().toLocaleDateString('en-US', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
-      })
-    };
-    
-    // Add review to hotel (in real app, this would update the database)
-    hotel.reviews = hotel.reviews || [];
-    hotel.reviews.unshift(newReview); // Add to beginning
-    
-    // Update overall rating (simple average)
-    const totalRating = hotel.reviews.reduce((sum, review) => sum + review.rating, 0);
-    hotel.rating = Math.round((totalRating / hotel.reviews.length) * 10) / 10;
-    
-    return {
-      success: true,
-      review: newReview,
-      newOverallRating: hotel.rating,
-      totalReviews: hotel.reviews.length
-    };
   }
 }
 
