@@ -6,9 +6,20 @@ import { cn } from "@/utils/cn";
 const GuestSelector = ({ adults, children, onAdultsChange, onChildrenChange, error }) => {
   const [isOpen, setIsOpen] = useState(false);
   
-  // Ensure values are numbers to prevent object rendering
-  const adultsCount = typeof adults === 'number' ? adults : parseInt(adults) || 1;
-  const childrenCount = typeof children === 'number' ? children : parseInt(children) || 0;
+// Robust type validation to prevent object rendering errors
+  const adultsCount = (() => {
+    if (typeof adults === 'number') return adults;
+    if (typeof adults === 'string') return parseInt(adults) || 1;
+    if (adults && typeof adults === 'object' && adults.adults) return parseInt(adults.adults) || 1;
+    return 1;
+  })();
+  
+  const childrenCount = (() => {
+    if (typeof children === 'number') return children;
+    if (typeof children === 'string') return parseInt(children) || 0;
+    if (children && typeof children === 'object' && children.children) return parseInt(children.children) || 0;
+    return 0;
+  })();
   
   const totalGuests = adultsCount + childrenCount;
   const guestText = totalGuests === 1 ? "1 guest" : `${totalGuests} guests`;
@@ -69,11 +80,11 @@ const adjustCount = (type, increment) => {
                   disabled={adultsCount <= 1}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
-                  <ApperIcon name="Minus" className="w-4 h-4" />
-                </button>
-                <span className="w-8 text-center font-medium">{String(adultsCount)}</span>
+</button>
+                
+                <span className="w-8 text-center font-medium">{adultsCount.toString()}</span>
+                
                 <button
-type="button"
                   onClick={() => adjustCount("adults", 1)}
                   disabled={adultsCount >= 8}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
@@ -98,11 +109,11 @@ type="button"
                   disabled={childrenCount <= 0}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"
                 >
-                  <ApperIcon name="Minus" className="w-4 h-4" />
-                </button>
-                <span className="w-8 text-center font-medium">{String(childrenCount)}</span>
+</button>
+                
+                <span className="w-8 text-center font-medium">{childrenCount.toString()}</span>
+                
                 <button
-type="button"
                   onClick={() => adjustCount("children", 1)}
                   disabled={childrenCount >= 6}
                   className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed hover:border-primary hover:text-primary transition-colors"

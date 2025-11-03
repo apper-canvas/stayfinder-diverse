@@ -122,13 +122,13 @@ const SearchForm = ({ onSearch, loading = false }) => {
           />
         </div>
 
-        {/* Guests */}
+{/* Guests */}
         <div>
           <GuestSelector
-            adults={searchData.adults}
-            children={searchData.children}
-            onAdultsChange={(value) => handleInputChange("adults", value)}
-            onChildrenChange={(value) => handleInputChange("children", value)}
+            adults={typeof searchData.adults === 'number' ? searchData.adults : parseInt(searchData.adults) || 2}
+            children={typeof searchData.children === 'number' ? searchData.children : parseInt(searchData.children) || 0}
+            onAdultsChange={(value) => handleInputChange("adults", typeof value === 'number' ? value : parseInt(value) || 1)}
+            onChildrenChange={(value) => handleInputChange("children", typeof value === 'number' ? value : parseInt(value) || 0)}
             error={errors.guests}
           />
         </div>
