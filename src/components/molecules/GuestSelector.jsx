@@ -145,8 +145,8 @@ const adjustCount = (type, increment) => {
       )}
 
       {error && (
-<p className="mt-1 text-sm text-error">{typeof error === 'object' ? JSON.stringify(error) : error}</p>
-      )}
+<p className="mt-1 text-sm text-error">{typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error || '')}</p>
+        )}
     </div>
   );
 };
