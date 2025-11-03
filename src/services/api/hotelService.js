@@ -17,7 +17,7 @@ class HotelService {
     return { ...hotel };
   }
 
-  async search(query) {
+async search(query) {
     await delay(400);
     
     const { destination, checkInDate, checkOutDate, adults, children } = query;
@@ -37,6 +37,48 @@ class HotelService {
     // and room capacity based on guests
     
     return filtered.map(hotel => ({ ...hotel }));
+  }
+
+  async filterHotels(hotels, filters) {
+    await delay(200); // Simulate processing time
+    
+    if (!filters) return [...hotels];
+
+    let filtered = [...hotels];
+
+    // Price range filter
+    if (filters.priceRange) {
+      const [minPrice, maxPrice] = filters.priceRange;
+      filtered = filtered.filter(hotel => 
+        hotel.pricePerNight >= minPrice && hotel.pricePerNight <= maxPrice
+      );
+    }
+
+    // Star rating filter
+    if (filters.starRating && filters.starRating.length > 0) {
+      filtered = filtered.filter(hotel => 
+        filters.starRating.includes(hotel.starRating)
+      );
+    }
+
+    // Amenities filter
+    if (filters.amenities && filters.amenities.length > 0) {
+      filtered = filtered.filter(hotel => {
+        // Mock amenity mapping based on hotel properties
+        const hotelAmenities = [];
+        
+        // Basic amenity inference from hotel data
+        if (hotel.starRating >= 3) hotelAmenities.push('wifi');
+        if (hotel.starRating >= 4) hotelAmenities.push('pool');
+        if (hotel.starRating >= 2) hotelAmenities.push('parking');
+        if (hotel.starRating >= 3) hotelAmenities.push('restaurant');
+
+        // Check if hotel has all selected amenities
+        return filters.amenities.every(amenity => hotelAmenities.includes(amenity));
+      });
+    }
+
+    return filtered;
   }
 
   async getFeatured(limit = 6) {

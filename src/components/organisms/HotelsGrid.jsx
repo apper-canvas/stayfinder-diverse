@@ -43,15 +43,23 @@ const HotelsGrid = ({ hotels, loading, error, onRetry, onViewDetails, searchQuer
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+<h2 className="font-display text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             {searchQuery ? "Search Results" : "Featured Hotels"}
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            {searchQuery 
-              ? `Found ${hotels.length} hotel${hotels.length === 1 ? '' : 's'} for your search`
-              : "Discover handpicked hotels with exceptional service and premium amenities"
-            }
-          </p>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <p className="text-lg text-gray-600">
+              {searchQuery 
+                ? `Found ${hotels.length} hotel${hotels.length === 1 ? '' : 's'} matching your criteria`
+                : "Discover handpicked hotels with exceptional service and premium amenities"
+              }
+            </p>
+            
+            {hotels.length > 0 && (
+              <div className="text-sm font-medium text-primary-600 bg-primary-50 px-3 py-2 rounded-full">
+                {hotels.length} result{hotels.length === 1 ? '' : 's'}
+              </div>
+            )}
+          </div>
         </motion.div>
 
         <motion.div
