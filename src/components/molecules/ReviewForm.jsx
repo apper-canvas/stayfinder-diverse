@@ -73,9 +73,10 @@ function ReviewForm({ hotelId, onSubmitSuccess, className }) {
     
     setIsSubmitting(true);
     
-    try {
+try {
       // Import hotelService here to avoid circular dependencies
-      const { hotelService } = await import('@/services/api/hotelService');
+      const hotelServiceModule = await import('@/services/api/hotelService');
+      const hotelService = hotelServiceModule.default;
       
       await hotelService.addReview(hotelId, formData);
       
