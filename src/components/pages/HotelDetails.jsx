@@ -8,7 +8,7 @@ import Input from "@/components/atoms/Input";
 import Card from "@/components/atoms/Card";
 import Home from "@/components/pages/Home";
 import BookingConfirmation from "@/components/organisms/BookingConfirmation";
-import ReviewForm from "@/components/organisms/ReviewForm";
+import ReviewForm from "@/components/molecules/ReviewForm";
 const HotelDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -451,9 +451,9 @@ const handleBooking = () => {
                 className="w-full"
                 size="lg"
                 disabled={!checkIn || !checkOut || !selectedRoom || nights <= 0}
+disabled={!checkIn || !checkOut || !selectedRoom || nights <= 0}
               >
-<ApperIcon name="Calendar" className="w-5 h-5" />
-                Book Now
+                <ApperIcon name="Calendar" className="w-5 h-5" />
               </Button>
               
               <p className="text-xs text-gray-500 mt-3 text-center">
