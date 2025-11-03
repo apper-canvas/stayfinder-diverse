@@ -56,8 +56,22 @@ class HotelService {
         pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
         currency: hotel.currency_c || 'USD',
         imageUrl: hotel.image_url_c || '',
-        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
-        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
+images: hotel.images_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.images_c);
+            return Array.isArray(parsed) ? parsed : [hotel.images_c];
+          } catch {
+            return [hotel.images_c];
+          }
+        })() : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.amenities_c);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })() : [],
         description: hotel.description_c || '',
         coordinates: hotel.coordinates_c ? JSON.parse(hotel.coordinates_c) : { lat: 0, lng: 0 }
       }));
@@ -109,8 +123,22 @@ class HotelService {
         pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
         currency: hotel.currency_c || 'USD',
         imageUrl: hotel.image_url_c || '',
-        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
-        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [
+images: hotel.images_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.images_c);
+            return Array.isArray(parsed) ? parsed : [hotel.images_c];
+          } catch {
+            return [hotel.images_c];
+          }
+        })() : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.amenities_c);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })() : [
           "Free WiFi", "Swimming Pool", "Fitness Center", "Spa & Wellness", 
           "Restaurant", "Bar", "Room Service", "Valet Parking", 
           "Air Conditioning", "Laundry Service", "Business Center"
@@ -190,8 +218,15 @@ class HotelService {
         starRating: parseInt(hotel.star_rating_c) || 3,
         pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
         currency: hotel.currency_c || 'USD',
-        imageUrl: hotel.image_url_c || '',
-        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
+imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.images_c);
+            return Array.isArray(parsed) ? parsed : [hotel.images_c];
+          } catch {
+            return [hotel.images_c];
+          }
+        })() : [hotel.image_url_c || ''],
         amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
         description: hotel.description_c || ''
       }));
@@ -239,9 +274,23 @@ class HotelService {
         starRating: parseInt(hotel.star_rating_c) || 3,
         pricePerNight: parseFloat(hotel.price_per_night_c) || 0,
         currency: hotel.currency_c || 'USD',
-        imageUrl: hotel.image_url_c || '',
-        images: hotel.images_c ? JSON.parse(hotel.images_c) : [hotel.image_url_c || ''],
-        amenities: hotel.amenities_c ? JSON.parse(hotel.amenities_c) : [],
+imageUrl: hotel.image_url_c || '',
+        images: hotel.images_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.images_c);
+            return Array.isArray(parsed) ? parsed : [hotel.images_c];
+          } catch {
+            return [hotel.images_c];
+          }
+        })() : [hotel.image_url_c || ''],
+        amenities: hotel.amenities_c ? (() => {
+          try {
+            const parsed = JSON.parse(hotel.amenities_c);
+            return Array.isArray(parsed) ? parsed : [];
+          } catch {
+            return [];
+          }
+        })() : [],
         description: hotel.description_c || ''
       }));
     } catch (error) {
