@@ -257,21 +257,21 @@ Thank you for choosing our service!
                 </div>
 
                 {/* Room Details */}
-                <Card className="p-4">
-                  <h4 className="font-semibold text-gray-900 mb-2">{bookingDetails.selectedRoom.name}</h4>
-                  <p className="text-sm text-gray-600 mb-2">{bookingDetails.selectedRoom.description}</p>
+<Card className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">{bookingDetails?.selectedRoom?.name || 'Room Details'}</h4>
+                  <p className="text-sm text-gray-600 mb-2">{bookingDetails?.selectedRoom?.description || 'No description available'}</p>
                   <div className="flex flex-wrap gap-2">
-                    {bookingDetails.selectedRoom.features.map((feature, index) => (
+                    {bookingDetails?.selectedRoom?.features?.map((feature, index) => (
                       <span 
                         key={index}
                         className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full"
                       >
                         {feature}
                       </span>
-                    ))}
+                    )) || <span className="text-sm text-gray-500">No features listed</span>}
                   </div>
                   <p className="text-sm text-gray-600 mt-2">
-                    {bookingDetails.rooms} room{bookingDetails.rooms > 1 ? 's' : ''}
+                    {bookingDetails?.rooms || 1} room{(bookingDetails?.rooms || 1) > 1 ? 's' : ''}
                   </p>
                 </Card>
 
@@ -280,8 +280,8 @@ Thank you for choosing our service!
                   <h4 className="font-semibold text-gray-900 mb-4">Price Breakdown</h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">
-                        ${bookingDetails.selectedRoom.pricePerNight} × {nights} nights × {bookingDetails.rooms} room{bookingDetails.rooms > 1 ? 's' : ''}
+<span className="text-gray-600">
+                        ${bookingDetails?.selectedRoom?.pricePerNight || 0} × {nights} nights × {bookingDetails?.rooms || 1} room{(bookingDetails?.rooms || 1) > 1 ? 's' : ''}
                       </span>
                       <span className="text-gray-900">${totalPrice}</span>
                     </div>
