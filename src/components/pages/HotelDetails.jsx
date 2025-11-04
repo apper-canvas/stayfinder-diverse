@@ -82,7 +82,7 @@ const fetchHotel = async () => {
     return selectedRoom.pricePerNight * nights * rooms;
   };
 
-const handleBooking = (isAuthenticated) => {
+const handleBooking = () => {
     
     // Check if user is authenticated
     if (!isAuthenticated) {
