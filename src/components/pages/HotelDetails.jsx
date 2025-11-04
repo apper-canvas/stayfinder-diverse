@@ -23,9 +23,10 @@ const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [rooms, setRooms] = useState(1);
   const [guests, setGuests] = useState(2);
-  const [selectedRoom, setSelectedRoom] = useState(null);
+const [selectedRoom, setSelectedRoom] = useState(null);
 const [showBookingModal, setShowBookingModal] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
+  const { isAuthenticated } = useSelector((state) => state.user);
 const fetchHotel = async () => {
     try {
       setLoading(true);
@@ -81,8 +82,7 @@ const fetchHotel = async () => {
     return selectedRoom.pricePerNight * nights * rooms;
   };
 
-const handleBooking = () => {
-    const { isAuthenticated } = useSelector((state) => state.user);
+const handleBooking = (isAuthenticated) => {
     
     // Check if user is authenticated
     if (!isAuthenticated) {
