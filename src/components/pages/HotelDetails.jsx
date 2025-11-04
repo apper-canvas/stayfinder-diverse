@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import hotelService from "@/services/api/hotelService";
 import ApperIcon from "@/components/ApperIcon";
@@ -81,6 +82,15 @@ const fetchHotel = async () => {
   };
 
 const handleBooking = () => {
+    const { isAuthenticated } = useSelector((state) => state.user);
+    
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      // Redirect to login with current page as redirect parameter
+      navigate(`/login?redirect=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    
     if (!checkIn || !checkOut || !selectedRoom) {
       toast.error('Please select check-in date, check-out date, and room type');
       return;
